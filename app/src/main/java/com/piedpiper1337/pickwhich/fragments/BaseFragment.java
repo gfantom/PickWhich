@@ -107,8 +107,13 @@ public abstract class BaseFragment extends Fragment {
         logMethodName("onDetach()");
     }
 
-    private void logMethodName(String methodName){
-        Log.d(getTag(), ">>>>>>>>>> " + methodName + " in " + getTag() + " <<<<<<<<<<");
+    /**
+     * Log which lifecycle event is being called and by whom
+     *
+     * @param methodName The name of the callback
+     * */
+    private void logMethodName(String methodName) {
+        Log.d(getTag(), ">>>>>>>> " + methodName + " in " + getTag() + " <<<<<<<<<<");
     }
 }
 

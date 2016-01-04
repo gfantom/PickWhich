@@ -47,7 +47,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private UserLoginTask mAuthTask = null; // TODO: Remove this
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -139,7 +139,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password); // TODO: remove this
             mAuthTask.execute((Void) null);
         }
     }
@@ -249,6 +249,9 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     /**
+     * Boilerplate
+     * TODO: remove this
+     *
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
