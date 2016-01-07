@@ -4,7 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.app.ProgressDialog;
 import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,9 +16,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -24,6 +27,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.piedpiper1337.pickwhich.R;
+import com.piedpiper1337.pickwhich.callbacks.ApiBroadcastReceiver;
+import com.piedpiper1337.pickwhich.callbacks.ApiProcessorCallback;
+import com.piedpiper1337.pickwhich.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +38,14 @@ import java.util.List;
 /**
  * The login screen that offers login via email/password.
  */
-public class LoginActivity extends BaseActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends BaseActivity implements LoaderCallbacks<Cursor>, ApiProcessorCallback {
 
     private static final String TAG = LoginActivity.class.getCanonicalName();
+
+    private ProgressDialog mProgressDialog;
+
+    private ApiBroadcastReceiver mReceiver;
+    private IntentFilter mFilter;
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -59,32 +70,52 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+        initUI(); // Set up the UI
+    }
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mReceiver = new ApiBroadcastReceiver(this);
+        mFilter = new IntentFilter();
+        mFilter.addAction(Constants.IntentActions.ACTION_ERROR);
+        mFilter.addAction(Constants.IntentActions.ACTION_SUCCESS);
+
+        registerReceiver(mReceiver, mFilter);
+    }
+
+    @Override
+    public void onHttpResponseError(Intent intent) {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+
+        String message = intent.getStringExtra(Constants.IntentExtras.MESSAGE);
+        Log.e(getTag(), message);
+        showErrorDialog(message);
+    }
+
+    @Override
+    public void onHttpRequestComplete(Intent intent) {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+
+        if (intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1) == Constants.ApiRequestId.OAUTH) {
+            // Successfully logged in, continue to next screen
+            //startActivity(new Intent(this, MainActivity.class)); // Start the main app Activity
+            //finish();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(mReceiver);
     }
 
     private void populateAutoComplete() {
@@ -246,6 +277,38 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     @Override
     public String getTag() {
         return TAG;
+    }
+
+    /**
+     * Initialized the UI
+     * */
+    private void initUI() {
+        // Set up the login form.
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        populateAutoComplete();
+
+        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptLogin();
+            }
+        });
+
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
     }
 
     /**
