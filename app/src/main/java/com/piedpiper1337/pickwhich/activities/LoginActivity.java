@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,11 +24,12 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.parse.Parse;
 import com.piedpiper1337.pickwhich.R;
 import com.piedpiper1337.pickwhich.callbacks.ApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.ApiProcessorCallback;
+import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Parse.initialize(this, "YG0KEXGqTmDujMdgQkdxGkc1TkLNt0TV0RJRjiyR", "C9uc54imuoNSyAyFl3EwiAdCFxjUoKOmSAquEo0v");
+
         setContentView(R.layout.activity_login);
 
         initUI(); // Set up the UI
@@ -107,6 +107,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         }
 
         if (intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1) == Constants.ApiRequestId.LOGIN) {
+            Toast.makeText(LoginActivity.this, "HURRAY WE LOGGED IN PEW PEW NEXT ACTIVITY", Toast.LENGTH_LONG).show();
             // Successfully logged in, continue to next screen
             //startActivity(new Intent(this, MainActivity.class)); // Start the main app Activity
             //finish();
@@ -124,15 +125,17 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         getLoaderManager().initLoader(0, null, this);
     }
 
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
+        mProgressDialog = ProgressDialog.show(LoginActivity.this, "", "Logging the human in", true);
+        ServiceHelper.getInstance(LoginActivity.this).doLogin("test", "Super Duper test!");
+
+        /*if (mAuthTask != null) {
+            //return;
         }
 
         // Reset errors.
@@ -174,7 +177,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password); // TODO: remove this
             mAuthTask.execute((Void) null);
-        }
+        }*/
     }
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -302,6 +305,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         });
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+
         mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

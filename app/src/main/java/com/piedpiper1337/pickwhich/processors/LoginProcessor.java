@@ -1,5 +1,6 @@
 package com.piedpiper1337.pickwhich.processors;
 
+import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
@@ -15,6 +16,10 @@ public class LoginProcessor extends Processor {
 
     private int mRequestId = -1;
 
+    public LoginProcessor(Context context) {
+        mContext = context;
+    }
+
     @Override
     public void execute(Intent intent) {
         mRequestId = intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1); // Base class automatically includes this in
@@ -23,10 +28,12 @@ public class LoginProcessor extends Processor {
 
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
             broadcast(Constants.IntentActions.ACTION_ERROR, "Empty username or password", null);
+            return;
         }
 
         if (mRequestId == Constants.ApiRequestId.LOGIN) {
             // Log in
+            // TODO: Add Parse Login here
             broadcast(Constants.IntentActions.ACTION_SUCCESS, "", null); // Successful login, Parse handles login details (for now)
         } else if (mRequestId == Constants.ApiRequestId.SIGN_UP) {
             // Sign up

@@ -1,5 +1,7 @@
 package com.piedpiper1337.pickwhich.utils;
 
+import com.piedpiper1337.pickwhich.processors.LoginProcessor;
+
 /**
  * Created by cary on 1/4/16.
  */
@@ -37,6 +39,8 @@ public class Constants {
     public interface IntentActions {
         String ACTION_ERROR = "com.PiedPiper1337.appIntentActions.ACTION_ERROR";
         String ACTION_SUCCESS = "com.PiedPiper1337.appIntentActions.ACTION_ERROR";
+
+        String AUTHENTICATION = LoginProcessor.class.getName();
     }
 
     public interface JsonKeys {

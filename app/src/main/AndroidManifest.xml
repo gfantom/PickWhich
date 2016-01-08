@@ -11,11 +11,15 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
+        android:name=".application.PickWhichApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
+
+        <service android:name=".service.ApiService" />
+
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/app_name" >
