@@ -8,10 +8,10 @@ import com.piedpiper1337.pickwhich.utils.Constants;
 
 /**
  * BroadcastReceiver to handle API Intents
- *
+ * <p/>
  * Activities and Fragments that interact
  * with the API should use one of these
- *
+ * <p/>
  * Created by cary on 1/4/16.
  */
 public class ApiBroadcastReceiver extends BroadcastReceiver {

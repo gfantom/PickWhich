@@ -23,7 +23,7 @@ public class CommonUtils {
 
     /**
      * Get the phone number of this phone, return null if one doesn't exist
-     * */
+     */
     public static String getPhoneNumber(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getLine1Number();
@@ -64,7 +64,7 @@ public class CommonUtils {
 
     /**
      * Check whether we are connected to the Internet
-     * */
+     */
     public static boolean isOnline(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -80,7 +80,7 @@ public class CommonUtils {
 
     /**
      * Get the unique device id for this device
-     * */
+     */
     public static String deviceId(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
@@ -91,17 +91,16 @@ public class CommonUtils {
     /**
      * Build a string of stars (for hiding passwords)
      * <p/>
-     * No need for StringBuilder as the compiler does it for us
      *
      * @param length the number of stars
      * @return A string of stars..
      */
     public static String stars(int length) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder("");
         for (int i = 0; i < length; i++) {
-            ret += '*';
+            ret.append('*');
         }
-        return ret;
+        return ret.toString();
     }
 
     /**
@@ -172,7 +171,7 @@ public class CommonUtils {
 
     /**
      * Convert Density Independent Pixels (dp) to pixels (px)
-     * */
+     */
     public static float dp2px(Resources resources, float dp) {
         final float scale = resources.getDisplayMetrics().density;
         return dp * scale + 0.5f;
@@ -180,7 +179,7 @@ public class CommonUtils {
 
     /**
      * Convert Scale Independent Pixel (sp) to pixels (px)
-     * */
+     */
     public static float sp2px(Resources resources, float sp) {
         final float scale = resources.getDisplayMetrics().scaledDensity;
         return sp * scale;

@@ -22,16 +22,16 @@ public class ProcessorFactory {
 
     /**
      * Processor Factory create method given the name of the processor
-     *
+     * <p/>
      * Uses reflection, not the ideal way to do this
      * FIXME: Rewrite this to not use reflection
-     * */
+     */
     public static Processor createProcessor(String action, Context context) {
         Processor processor = null;
 
         try {
             Constructor<?> c = Class.forName(action).getConstructor(Context.class);
-            processor = (Processor) c.newInstance(new Object[] {context});
+            processor = (Processor) c.newInstance(new Object[]{context});
         } catch (ClassNotFoundException cnfe) {
             Log.e(TAG, "No Processor found " + action);
         } catch (NoSuchMethodException nsme) {

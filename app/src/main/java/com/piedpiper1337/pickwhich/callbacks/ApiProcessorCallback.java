@@ -11,13 +11,13 @@ public interface ApiProcessorCallback {
      * Called from the broadcast receiver on an error
      *
      * @param intent
-     * */
+     */
     public void onHttpResponseError(Intent intent);
 
     /**
      * Called from the broadcast receiver on success
      *
      * @param intent
-     * */
+     */
     public void onHttpRequestComplete(Intent intent);
 }

@@ -16,8 +16,8 @@ public class SharedPreferenceUtil {
      * Save a key-value pair to SharedPreferences
      *
      * @param context The current context
-     * @param key The key for the key-value pair
-     * @param value The value of the key-value pair (String)
+     * @param key     The key for the key-value pair
+     * @param value   The value of the key-value pair (String)
      */
     public static void savePreference(Context context, String key, String value) {
         SharedPreferences sp = PreferenceManager
@@ -32,8 +32,8 @@ public class SharedPreferenceUtil {
      * Save a key-value pair to SharedPreferences
      *
      * @param context The current context
-     * @param key The key for the key-value pair
-     * @param value The value of the key-value pair (String)
+     * @param key     The key for the key-value pair
+     * @param value   The value of the key-value pair (String)
      */
     public static void savePreference(Context context, String key, int value) {
         SharedPreferences sp = PreferenceManager
@@ -48,8 +48,8 @@ public class SharedPreferenceUtil {
      * Save a key-value pair to SharedPreferences
      *
      * @param context The current context
-     * @param key The key for the key-value pair
-     * @param value The value of the key-value pair (boolean)
+     * @param key     The key for the key-value pair
+     * @param value   The value of the key-value pair (boolean)
      */
     public static void savePreference(Context context, String key, boolean value) {
         SharedPreferences sp = PreferenceManager

@@ -111,7 +111,7 @@ public abstract class BaseFragment extends Fragment {
      * Log which lifecycle event is being called and by whom
      *
      * @param methodName The name of the callback
-     * */
+     */
     private void logMethodName(String methodName) {
         Log.d(getTag(), ">>>>>>>> " + methodName + " in " + getTag() + " <<<<<<<<<<");
     }

@@ -1,6 +1,7 @@
 package com.piedpiper1337.pickwhich.activities;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,12 +12,14 @@ import com.piedpiper1337.pickwhich.R;
 
 /**
  * Base Activity class that all Activities should inherit from
- *
+ * <p/>
  * Created by cary on 1/2/16.
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract String getTag();
+
+    protected ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +85,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Log which lifecycle event is being called and by whom
      *
      * @param methodName The name of the callback
-     * */
+     */
     private void logMethodName(String methodName) {
         Log.d(getTag(), ">>>>>>>> " + methodName + " in " + getTag() + " <<<<<<<<<<");
     }
@@ -91,7 +94,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Show an error to the user
      *
      * @param message The message to show
-     * */
+     */
     public void showErrorDialog(String message) {
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("Error");

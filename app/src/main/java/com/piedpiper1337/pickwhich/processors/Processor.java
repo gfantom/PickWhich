@@ -12,7 +12,7 @@ import org.json.JSONObject;
 /**
  * Base Processor class
  * Contains all the basic REST verbs
- *
+ * <p/>
  * Created by cary on 1/4/16.
  */
 public abstract class Processor {
@@ -50,10 +50,10 @@ public abstract class Processor {
     /**
      * Broadcast the result of a request to subscribed Activities and Fragments
      *
-     * @param action Intent Action (use Constants.IntentActions)
-     * @param message Message to broadcast
+     * @param action       Intent Action (use Constants.IntentActions)
+     * @param message      Message to broadcast
      * @param jsonResponse The Json Response DUH (can be null)
-     * */
+     */
     protected void broadcast(String action, String message, JSONObject jsonResponse) {
         Intent intent = new Intent();
         intent.setAction(action);
@@ -70,9 +70,9 @@ public abstract class Processor {
     /**
      * Log the execution given name of executing processor (tag) and request id
      *
-     * @param tag name of the Processor
+     * @param tag       name of the Processor
      * @param requestId the request id
-     * */
+     */
     public void logExecute(String tag, int requestId) {
         Log.d(tag, "-_-_-_-_-_-_ " + tag + " calling request id " + requestId + " -_-_-_-_-_-_");
     }

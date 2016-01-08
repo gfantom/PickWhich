@@ -10,7 +10,7 @@ import com.piedpiper1337.pickwhich.utils.Constants;
 /**
  * Singleton Service Helper
  * Manages the starting of the ApiService
- *
+ * <p/>
  * Created by cary on 1/7/16.
  */
 public class ServiceHelper {
