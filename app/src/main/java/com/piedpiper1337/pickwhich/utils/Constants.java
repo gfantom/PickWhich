@@ -7,7 +7,8 @@ public class Constants {
 
     public interface ApiRequestId {
         int AUTH_BASE_VALUE = 1000;
-        int OAUTH = AUTH_BASE_VALUE + 1;
+        int LOGIN = AUTH_BASE_VALUE + 1;
+        int SIGN_UP = AUTH_BASE_VALUE + 2;
 
         int MESSAGE_BASE_VALUE = 2000;
 
@@ -26,6 +27,11 @@ public class Constants {
         String JSON_RESPONSE = "com.PiedPiper1337.appIntentExtras.JSON_RESPONSE";
         String MESSAGE = "com.PiedPiper1337.appIntentExtras.MESSAGE";
         String REQUEST_ID = "com.PiedPiper1337.appIntentExtras.REQUEST_ID";
+        String USERNAME = "com.PiedPiper1337.appIntentExtras.USERNAME";
+        String PASSWORD = "com.PiedPiper1337.appIntentExtras.PASSWORD";
+        String EMAIL = "com.PiedPiper1337.appIntentExtras.EMAIL";
+        String PHONE_NUMBER = "com.PiedPiper1337.appIntentExtras.PHONE_NUMBER";
+        String ERROR_NO_NETWORK = "com.PiedPiper1337.appIntentExtras.ERROR_NO_NETWORK";
     }
 
     public interface IntentActions {

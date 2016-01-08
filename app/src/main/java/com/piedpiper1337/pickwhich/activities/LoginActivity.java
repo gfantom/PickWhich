@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.Parse;
 import com.piedpiper1337.pickwhich.R;
 import com.piedpiper1337.pickwhich.callbacks.ApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.ApiProcessorCallback;
@@ -69,6 +70,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Parse.initialize(this, "YG0KEXGqTmDujMdgQkdxGkc1TkLNt0TV0RJRjiyR", "C9uc54imuoNSyAyFl3EwiAdCFxjUoKOmSAquEo0v");
         setContentView(R.layout.activity_login);
 
         initUI(); // Set up the UI
@@ -104,7 +106,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             mProgressDialog.dismiss();
         }
 
-        if (intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1) == Constants.ApiRequestId.OAUTH) {
+        if (intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1) == Constants.ApiRequestId.LOGIN) {
             // Successfully logged in, continue to next screen
             //startActivity(new Intent(this, MainActivity.class)); // Start the main app Activity
             //finish();
