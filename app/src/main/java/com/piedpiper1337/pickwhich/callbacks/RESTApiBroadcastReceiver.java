@@ -14,11 +14,11 @@ import com.piedpiper1337.pickwhich.utils.Constants;
  * <p/>
  * Created by cary on 1/4/16.
  */
-public class ApiBroadcastReceiver extends BroadcastReceiver {
+public class RESTApiBroadcastReceiver extends BroadcastReceiver {
 
-    private ApiProcessorCallback mCallback;
+    private RESTApiProcessorCallback mCallback;
 
-    public ApiBroadcastReceiver(ApiProcessorCallback callback) {
+    public RESTApiBroadcastReceiver(RESTApiProcessorCallback callback) {
         mCallback = callback;
     }
 

@@ -11,6 +11,7 @@ public class Constants {
         int AUTH_BASE_VALUE = 1000;
         int LOGIN = AUTH_BASE_VALUE + 1;
         int SIGN_UP = AUTH_BASE_VALUE + 2;
+        int LOGOUT = AUTH_BASE_VALUE + 3;
 
         int MESSAGE_BASE_VALUE = 2000;
 

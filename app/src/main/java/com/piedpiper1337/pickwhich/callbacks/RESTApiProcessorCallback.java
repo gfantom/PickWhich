@@ -5,7 +5,7 @@ import android.content.Intent;
 /**
  * Created by cary on 1/4/16.
  */
-public interface ApiProcessorCallback {
+public interface RESTApiProcessorCallback {
 
     /**
      * Called from the broadcast receiver on an error
