@@ -40,7 +40,7 @@ public class ServiceHelper {
 
     private boolean startService(Intent intent) {
         if (CommonUtils.isOnline(mContext)) {
-            intent.setClass(mContext, ApiService.class);
+            intent.setClass(mContext, RESTApiService.class);
             mContext.startService(intent);
             Log.d(TAG, "Apparently we started the service");
             return true;
