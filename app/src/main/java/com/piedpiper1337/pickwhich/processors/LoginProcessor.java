@@ -70,6 +70,9 @@ public class LoginProcessor extends Processor {
                     }
                 }
             });
+        } else if (mRequestId == Constants.ApiRequestId.LOGOUT) {
+            // TODO: Use parse to logout
+            broadcast(Constants.IntentActions.ACTION_SUCCESS, "", null);
         }
     }
 

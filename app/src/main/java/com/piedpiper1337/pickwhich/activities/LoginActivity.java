@@ -23,11 +23,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.piedpiper1337.pickwhich.R;
-import com.piedpiper1337.pickwhich.callbacks.ApiBroadcastReceiver;
-import com.piedpiper1337.pickwhich.callbacks.ApiProcessorCallback;
+import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
+import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
 import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
@@ -38,12 +37,12 @@ import java.util.List;
 /**
  * The login screen that offers login via email/password.
  */
-public class LoginActivity extends BaseActivity implements LoaderCallbacks<Cursor>, ApiProcessorCallback {
+public class LoginActivity extends BaseActivity implements LoaderCallbacks<Cursor>, RESTApiProcessorCallback {
 
-    private static final String TAG = LoginActivity.class.getCanonicalName();
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     // To subscribe to broadcasts
-    private ApiBroadcastReceiver mReceiver;
+    private RESTApiBroadcastReceiver mReceiver;
     private IntentFilter mFilter;
 
     // UI references.
@@ -65,7 +64,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     protected void onResume() {
         super.onResume();
 
-        mReceiver = new ApiBroadcastReceiver(this);
+        mReceiver = new RESTApiBroadcastReceiver(this);
         mFilter = new IntentFilter();
         mFilter.addAction(Constants.IntentActions.ACTION_ERROR);
         mFilter.addAction(Constants.IntentActions.ACTION_SUCCESS);
@@ -95,10 +94,9 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         showProgress(false);
 
         if (intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1) == Constants.ApiRequestId.LOGIN) {
-            Toast.makeText(LoginActivity.this, "HURRAY WE LOGGED IN PEW PEW NEXT ACTIVITY", Toast.LENGTH_LONG).show();
             // Successfully logged in, continue to next screen
-            //startActivity(new Intent(this, MainActivity.class)); // Start the main app Activity
-            //finish();
+            startActivity(new Intent(this, HomeActivity.class)); // Start the main app Activity
+            finish();
         }
     }
 
@@ -149,6 +147,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
     /**
      * Attempts to log in
+     * Essentially check if fields are valid and start progress spinner and background login request
      */
     private void attemptLogin() {
         //mProgressDialog = ProgressDialog.show(LoginActivity.this, "", "Logging the human in", true);
@@ -165,7 +164,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -195,12 +194,12 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with logic
+        // TODO: Replace this with logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with logic
+        // TODO: Replace this with logic
         return password.length() > 4;
     }
 

@@ -11,11 +11,11 @@ import com.piedpiper1337.pickwhich.utils.Constants;
 /**
  * Created by cary on 1/6/16.
  */
-public class ApiService extends IntentService {
+public class RESTApiService extends IntentService {
 
-    private static String TAG = ApiService.class.getSimpleName();
+    private static String TAG = RESTApiService.class.getSimpleName();
 
-    public ApiService() {
+    public RESTApiService() {
         super("ApiService");
     }
 
