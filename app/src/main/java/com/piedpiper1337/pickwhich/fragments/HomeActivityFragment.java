@@ -1,4 +1,4 @@
-package com.piedpiper1337.pickwhich.activities;
+package com.piedpiper1337.pickwhich.fragments;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;

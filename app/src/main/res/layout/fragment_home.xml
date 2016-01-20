@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.piedpiper1337.pickwhich.activities.HomeActivityFragment"
+    tools:context=".fragments.HomeActivityFragment"
     tools:showIn="@layout/activity_home">
 
     <android.support.v4.view.ViewPager
