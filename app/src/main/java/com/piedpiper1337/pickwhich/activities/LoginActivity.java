@@ -230,16 +230,18 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                     mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
                     mUsernameTextInputLayout.setVisibility(View.VISIBLE);
                     mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
-                    mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+                    mEmailSignInButton.setOnClickListener(mSignUpOnClickListener);
                     mEmailSignInButton.setText(R.string.action_sign_up);
-                    mPasswordView.setOnEditorActionListener(mSignInOnEditorActionListener);
+                    mPasswordView.setOnEditorActionListener(mSignUpOnEditorActionListener);
+                    mPasswordView.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
                 } else {
                     mConfirmPasswordTextInputLayout.setVisibility(View.GONE);
                     mUsernameTextInputLayout.setVisibility(View.GONE);
                     mPhoneNumberTextInputLayout.setVisibility(View.GONE);
-                    mEmailSignInButton.setOnClickListener(mSignUpOnClickListener);
+                    mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
                     mEmailSignInButton.setText(R.string.action_sign_in);
-                    mPasswordView.setOnEditorActionListener(mSignUpOnEditorActionListener);
+                    mPasswordView.setOnEditorActionListener(mSignInOnEditorActionListener);
+                    mPasswordView.setImeActionLabel(getString(R.string.action_sign_in), R.id.login);
                 }
             }
         });
@@ -254,6 +256,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
             mEmailSignInButton.setText(R.string.action_sign_up);
             mPasswordView.setOnEditorActionListener(mSignInOnEditorActionListener);
+            mPasswordView.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
         }
 
         /**
