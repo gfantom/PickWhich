@@ -29,4 +29,10 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.1'
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile('commons-validator:commons-validator:1.4.1'){
+        exclude group: 'commons-logging'
+        exclude group: 'commons-collections'
+        exclude group: 'commons-digester'
+        exclude group: 'commons-beanutils'
+    }
 }

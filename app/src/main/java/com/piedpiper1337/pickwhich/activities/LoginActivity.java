@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,6 +24,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +34,8 @@ import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
 import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
+
+import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +54,23 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
     // UI references.
     private AutoCompleteTextView mEmailView;
+    private Button mEmailSignInButton;
     private EditText mPasswordView;
+    private EditText mPasswordConfirmView;
+    private EditText mUsernameEditText;
+    private EditText mPhoneNumber;
     private View mProgressView;
     private View mLoginFormView;
+    private TextInputLayout mConfirmPasswordTextInputLayout;
+    private TextInputLayout mUsernameTextInputLayout;
+    private TextInputLayout mPhoneNumberTextInputLayout;
+    private CheckBox mSignUpCheckBox;
+
+    TextView.OnEditorActionListener mSignInOnEditorActionListener;
+    TextView.OnEditorActionListener mSignUpOnEditorActionListener;
+
+    View.OnClickListener mSignInOnClickListener;
+    View.OnClickListener mSignUpOnClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,12 +147,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
      * Initialized the UI
      */
     private void initUI() {
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mSignInOnEditorActionListener = new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -142,19 +156,115 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                 }
                 return false;
             }
-        });
+        };
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mSignUpOnEditorActionListener = new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int id, KeyEvent event) {
+                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    attemptSignUp();
+                    return true;
+                }
+                return false;
+            }
+        };
 
-        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+        mSignInOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
+        };
+
+        mSignUpOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptSignUp();
+            }
+        };
+
+        /**
+         * Email Box
+         * */
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        populateAutoComplete();
+
+        /**
+         * Username Box (for sign up)
+         * */
+        mUsernameTextInputLayout = (TextInputLayout) findViewById(R.id.username_textinputlayout);
+        mUsernameEditText = (EditText) findViewById(R.id.username);
+
+        /**
+         * Phone Number Box (for sign up)
+         * */
+        mPhoneNumberTextInputLayout = (TextInputLayout) findViewById(R.id.phone_number_textinputlayout);
+        mPhoneNumber = (EditText) findViewById(R.id.phone_number);
+
+        /**
+         * First Password Box
+         * */
+        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView.setOnEditorActionListener(mSignInOnEditorActionListener);
+
+        /**
+         * Confirm Password Box (for sign up)
+         * */
+        mConfirmPasswordTextInputLayout = (TextInputLayout) findViewById(R.id.password_confirm_text_input_layout);
+        mPasswordConfirmView = (EditText) findViewById(R.id.password_confirm);
+
+        /**
+         * Dual purpose SUSI button
+         * */
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+
+        /**
+         * CheckBox for toggling SU/SI
+         * */
+        mSignUpCheckBox = (CheckBox) findViewById(R.id.sign_up_checkbox);
+        mSignUpCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
+                    mUsernameTextInputLayout.setVisibility(View.VISIBLE);
+                    mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
+                    mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+                    mEmailSignInButton.setText(R.string.action_sign_up);
+                    mPasswordView.setOnEditorActionListener(mSignInOnEditorActionListener);
+                } else {
+                    mConfirmPasswordTextInputLayout.setVisibility(View.GONE);
+                    mUsernameTextInputLayout.setVisibility(View.GONE);
+                    mPhoneNumberTextInputLayout.setVisibility(View.GONE);
+                    mEmailSignInButton.setOnClickListener(mSignUpOnClickListener);
+                    mEmailSignInButton.setText(R.string.action_sign_in);
+                    mPasswordView.setOnEditorActionListener(mSignUpOnEditorActionListener);
+                }
+            }
         });
 
+        /**
+         * When the screen is rotated this check prevents a UI bug
+         * */
+        if (mSignUpCheckBox.isChecked()) {
+            mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
+            mUsernameTextInputLayout.setVisibility(View.VISIBLE);
+            mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
+            mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+            mEmailSignInButton.setText(R.string.action_sign_up);
+            mPasswordView.setOnEditorActionListener(mSignInOnEditorActionListener);
+        }
+
+        /**
+         * Views for toggling the Progress Bar
+         * */
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void attemptSignUp() {
+
     }
 
     /**
@@ -206,13 +316,12 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     private boolean isEmailValid(String email) {
-        // TODO: Replace this with logic
-        return email.contains("@");
+        return EmailValidator.getInstance().isValid(email);
     }
 
     private boolean isPasswordValid(String password) {
         // TODO: Replace this with logic
-        return password.length() > 4;
+        return password.length() >= 6 && password.matches(".*[0-9].*");
     }
 
     /**
