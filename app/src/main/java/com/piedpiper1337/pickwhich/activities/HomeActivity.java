@@ -7,14 +7,17 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.parse.ParseUser;
 import com.piedpiper1337.pickwhich.R;
 import com.piedpiper1337.pickwhich.adapters.InboxFragmentPagerAdapter;
+import com.piedpiper1337.pickwhich.callbacks.NavigationCallback;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
 import com.piedpiper1337.pickwhich.fragments.InboxFragment;
@@ -22,7 +25,10 @@ import com.piedpiper1337.pickwhich.fragments.dummy.DummyContent;
 import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
-public class HomeActivity extends BaseActivity implements RESTApiProcessorCallback, InboxFragment.OnListFragmentInteractionListener {
+public class HomeActivity extends BaseActivity implements
+        RESTApiProcessorCallback,
+        InboxFragment.OnListFragmentInteractionListener,
+        NavigationCallback {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
 
@@ -33,6 +39,8 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
     private ViewPager mInboxViewPager;
     private InboxFragmentPagerAdapter mInboxFragmentPagerAdapter;
     private TabLayout mTabLayout;
+    private ParseUser mCurrentUser;
+    private Toolbar mToolbar;
 
     @Override
     public String getTag() {
@@ -43,8 +51,8 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
         initUI();
     }
@@ -103,6 +111,8 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
     }
 
     private void initUI() {
+        mCurrentUser = ParseUser.getCurrentUser();
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,6 +135,10 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
 
         mTabLayout.getTabAt(0).setIcon(R.drawable.ic_inbox_white_24dp);
         mTabLayout.getTabAt(1).setIcon(R.drawable.ic_send_white_24dp);
+
+        if (mCurrentUser != null) {
+            setTitle(mCurrentUser.getUsername() + "'s Picks");
+        }
     }
 
     @Override
@@ -152,5 +166,45 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
             ServiceHelper.getInstance(HomeActivity.this).doLogout();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void goFullScreen() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+    }
+
+    @Override
+    public void returnFromFullScreen() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(0);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.show();
+        }
+    }
+
+
+    @Override
+    public void startNewPick() {
+
+    }
+
+    @Override
+    public void goToInbox() {
+
+    }
+
+    @Override
+    public void nextPhoto() {
+
     }
 }
