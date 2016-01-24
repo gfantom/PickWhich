@@ -23,4 +23,8 @@
     <string name="dont_have_an_account">I don\'t have an Account</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_phone_number">Phone Number</string>
+    <string name="error_passwords_must_match">Passwords must match</string>
+    <string name="error_invalid_username">Invalid Username</string>
+    <string name="error_invalid_phone_number">Invalid Phone Number</string>
+    <string name="logout">Log Out</string>
 </resources>

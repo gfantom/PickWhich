@@ -19,6 +19,7 @@ import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
 import com.piedpiper1337.pickwhich.fragments.InboxFragment;
 import com.piedpiper1337.pickwhich.fragments.dummy.DummyContent;
+import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
 public class HomeActivity extends BaseActivity implements RESTApiProcessorCallback, InboxFragment.OnListFragmentInteractionListener {
@@ -73,7 +74,14 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
             mProgressDialog.dismiss();
         }
 
+        int requestId = intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1);
         String message = intent.getStringExtra(Constants.IntentExtras.MESSAGE);
+
+        if (requestId == Constants.ApiRequestId.LOGOUT) {
+            finish();
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+        }
+
         Log.e(getTag(), message);
         showErrorDialog(message);
     }
@@ -82,6 +90,15 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
     public void onHttpRequestComplete(Intent intent) {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
+        }
+
+        int requestId = intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1);
+
+        if (requestId == Constants.ApiRequestId.LOGOUT) {
+            finish();
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+        } else {
+            Log.e(getTag(), "Unhandled HttpRequestComplete from " + intent.getAction());
         }
     }
 
@@ -130,6 +147,9 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        }
+        if (id == R.id.action_logout) {
+            ServiceHelper.getInstance(HomeActivity.this).doLogout();
         }
         return super.onOptionsItemSelected(item);
     }
