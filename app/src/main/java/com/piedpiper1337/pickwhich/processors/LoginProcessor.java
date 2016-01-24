@@ -3,7 +3,9 @@ package com.piedpiper1337.pickwhich.processors;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
@@ -33,8 +35,20 @@ public class LoginProcessor extends Processor {
 
         if (mRequestId == Constants.ApiRequestId.LOGIN) {
             // Log in
-            // TODO: Add Parse Login here
-            broadcast(Constants.IntentActions.ACTION_SUCCESS, "", null); // Successful login, Parse handles login details (for now)
+            ParseUser.logInInBackground(username, password, new LogInCallback() {
+                @Override
+                public void done(ParseUser parseUser, ParseException e) {
+                    if (parseUser != null) {
+                        // Yay we logged in successfully
+                        broadcast(Constants.IntentActions.ACTION_SUCCESS, "", null);
+                    } else {
+                        // Oh no, something died check e for why exactly...
+                        broadcast(Constants.IntentActions.ACTION_ERROR, "Unable to authenticate: " + e.getMessage(), null);
+                        Log.e(getTag(), e.toString());
+                    }
+                }
+            });
+            //broadcast(Constants.IntentActions.ACTION_SUCCESS, "", null);
         } else if (mRequestId == Constants.ApiRequestId.SIGN_UP) {
             // Sign up
             String email = intent.getStringExtra(Constants.IntentExtras.EMAIL);
@@ -66,7 +80,8 @@ public class LoginProcessor extends Processor {
                         broadcast(Constants.IntentActions.ACTION_SUCCESS, "", null);
                     } else {
                         // Check error code e.g. e.CACHE_MISS
-                        broadcast(Constants.IntentActions.ACTION_ERROR, "", null);
+                        broadcast(Constants.IntentActions.ACTION_ERROR, "Unable to sign up: " + e.getMessage(), null);
+                        Log.e(getTag(), e.toString());
                     }
                 }
             });

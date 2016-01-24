@@ -29,6 +29,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.ParseUser;
 import com.piedpiper1337.pickwhich.R;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
@@ -76,11 +77,15 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int temp = 0;
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            finish();
+            startActivity(new Intent(this, HomeActivity.class)); // Move along, we're already logged in
+        }
 
         ActivityCompat.requestPermissions(this, new String[] {
                 android.Manifest.permission.READ_CONTACTS
-        }, temp);
+        }, 0);
 
         setContentView(R.layout.activity_login);
     }
@@ -314,7 +319,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            ServiceHelper.getInstance(LoginActivity.this).doLogin("test", "Super Duper test!");
+            ServiceHelper.getInstance(LoginActivity.this).doLogin(email, password);
         }
     }
 
