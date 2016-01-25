@@ -1,5 +1,6 @@
 package com.piedpiper1337.pickwhich.activities;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -107,7 +108,7 @@ public class HomeActivity extends BaseActivity implements
 
         getFragmentManager()
                 .beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .add(R.id.home_coordinator_layout, homeFragment, "homeFragment")
                 .commit();
@@ -141,6 +142,17 @@ public class HomeActivity extends BaseActivity implements
     }
 
     @Override
+    public void onBackPressed() {
+        FragmentManager fm = getFragmentManager();
+        if (fm.getBackStackEntryCount() > 0) {
+            Log.d(getTag(), fm.getBackStackEntryAt(fm.getBackStackEntryCount()-1).getName());
+            fm.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void goFullScreen() {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -164,12 +176,11 @@ public class HomeActivity extends BaseActivity implements
         }
     }
 
-
     @Override
     public void startNewPick() {
         getFragmentManager()
                 .beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right)
                 .replace(R.id.home_coordinator_layout, PhotoFragment.newInstance())
                 .addToBackStack(null)
                 .commit();
