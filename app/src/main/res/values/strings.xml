@@ -27,4 +27,7 @@
     <string name="error_invalid_username">Invalid Username</string>
     <string name="error_invalid_phone_number">Invalid Phone Number</string>
     <string name="logout">Log Out</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

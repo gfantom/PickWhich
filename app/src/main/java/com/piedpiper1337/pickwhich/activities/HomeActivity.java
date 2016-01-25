@@ -3,24 +3,21 @@ package com.piedpiper1337.pickwhich.activities;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.parse.ParseUser;
 import com.piedpiper1337.pickwhich.R;
-import com.piedpiper1337.pickwhich.adapters.InboxFragmentPagerAdapter;
 import com.piedpiper1337.pickwhich.callbacks.NavigationCallback;
+import com.piedpiper1337.pickwhich.callbacks.PhotoInteractionCallback;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
+import com.piedpiper1337.pickwhich.fragments.HomeFragment;
 import com.piedpiper1337.pickwhich.fragments.InboxFragment;
+import com.piedpiper1337.pickwhich.fragments.PhotoFragment;
 import com.piedpiper1337.pickwhich.fragments.dummy.DummyContent;
 import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
@@ -28,7 +25,7 @@ import com.piedpiper1337.pickwhich.utils.Constants;
 public class HomeActivity extends BaseActivity implements
         RESTApiProcessorCallback,
         InboxFragment.OnListFragmentInteractionListener,
-        NavigationCallback {
+        NavigationCallback, PhotoInteractionCallback {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
 
@@ -36,11 +33,7 @@ public class HomeActivity extends BaseActivity implements
     private RESTApiBroadcastReceiver mReceiver;
     private IntentFilter mFilter;
 
-    private ViewPager mInboxViewPager;
-    private InboxFragmentPagerAdapter mInboxFragmentPagerAdapter;
-    private TabLayout mTabLayout;
-    private ParseUser mCurrentUser;
-    private Toolbar mToolbar;
+
 
     @Override
     public String getTag() {
@@ -51,8 +44,6 @@ public class HomeActivity extends BaseActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
 
         initUI();
     }
@@ -111,34 +102,15 @@ public class HomeActivity extends BaseActivity implements
     }
 
     private void initUI() {
-        mCurrentUser = ParseUser.getCurrentUser();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Transition to camera Fragment
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        HomeFragment homeFragment = HomeFragment.newInstance();
 
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
-
-        mInboxViewPager = (ViewPager) findViewById(R.id.inbox_viewpager);
-        mInboxFragmentPagerAdapter = new InboxFragmentPagerAdapter(getSupportFragmentManager(), this);
-        mInboxFragmentPagerAdapter.addFragment(InboxFragment.newInstance(1), "Inbox", R.drawable.ic_inbox_white_24dp);
-        mInboxFragmentPagerAdapter.addFragment(InboxFragment.newInstance(1), "Sent", R.drawable.ic_inbox_white_24dp);
-        mInboxViewPager.setAdapter(mInboxFragmentPagerAdapter);
-
-        mTabLayout.setupWithViewPager(mInboxViewPager);
-
-        mTabLayout.getTabAt(0).setIcon(R.drawable.ic_inbox_white_24dp);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.ic_send_white_24dp);
-
-        if (mCurrentUser != null) {
-            setTitle(mCurrentUser.getUsername() + "'s Picks");
-        }
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .add(R.id.home_coordinator_layout, homeFragment, "homeFragment")
+                .commit();
     }
 
     @Override
@@ -195,7 +167,13 @@ public class HomeActivity extends BaseActivity implements
 
     @Override
     public void startNewPick() {
-
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .replace(R.id.home_coordinator_layout, PhotoFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+        Log.d(getTag(), "Done replacing!");
     }
 
     @Override
@@ -205,6 +183,11 @@ public class HomeActivity extends BaseActivity implements
 
     @Override
     public void nextPhoto() {
+
+    }
+
+    @Override
+    public void finishedPhoto() {
 
     }
 }
