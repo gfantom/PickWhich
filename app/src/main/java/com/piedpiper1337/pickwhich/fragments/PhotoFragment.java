@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.piedpiper1337.pickwhich.R;
 import com.piedpiper1337.pickwhich.callbacks.NavigationCallback;
 import com.piedpiper1337.pickwhich.callbacks.PhotoInteractionCallback;
+import com.piedpiper1337.pickwhich.model.PickInstance;
 
 /**
  * PhotoFragment is an instance of
@@ -38,6 +39,11 @@ public class PhotoFragment extends BaseFragment {
         Bundle args = new Bundle();
         //args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static PhotoFragment newInstance(PickInstance instance) {
+        PhotoFragment fragment = new PhotoFragment();
         return fragment;
     }
 
