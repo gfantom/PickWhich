@@ -63,13 +63,21 @@ public class ServiceHelper {
         startService(loginIntent);
     }
 
-    public void doSignUp(String username, String password, String email) {
+    public void doSignUp(String username, String password, String email, String phoneNumber) {
         Intent signUpIntent = new Intent();
         signUpIntent.setAction(Constants.IntentActions.AUTHENTICATION);
         signUpIntent.putExtra(Constants.IntentExtras.REQUEST_ID, Constants.ApiRequestId.SIGN_UP);
         signUpIntent.putExtra(Constants.IntentExtras.USERNAME, username);
         signUpIntent.putExtra(Constants.IntentExtras.PASSWORD, password);
         signUpIntent.putExtra(Constants.IntentExtras.EMAIL, email);
+        signUpIntent.putExtra(Constants.IntentExtras.PHONE_NUMBER, phoneNumber);
         startService(signUpIntent);
+    }
+
+    public void doLogout() {
+        Intent logoutIntent = new Intent();
+        logoutIntent.setAction(Constants.IntentActions.AUTHENTICATION);
+        logoutIntent.putExtra(Constants.IntentExtras.REQUEST_ID, Constants.ApiRequestId.LOGOUT);
+        startService(logoutIntent);
     }
 }

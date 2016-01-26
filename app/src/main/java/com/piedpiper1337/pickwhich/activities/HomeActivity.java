@@ -1,27 +1,32 @@
 package com.piedpiper1337.pickwhich.activities;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.piedpiper1337.pickwhich.R;
-import com.piedpiper1337.pickwhich.adapters.InboxFragmentPagerAdapter;
+import com.piedpiper1337.pickwhich.callbacks.NavigationCallback;
+import com.piedpiper1337.pickwhich.callbacks.PhotoInteractionCallback;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
+import com.piedpiper1337.pickwhich.fragments.HomeFragment;
 import com.piedpiper1337.pickwhich.fragments.InboxFragment;
+import com.piedpiper1337.pickwhich.fragments.PhotoFragment;
 import com.piedpiper1337.pickwhich.fragments.dummy.DummyContent;
+import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
-public class HomeActivity extends BaseActivity implements RESTApiProcessorCallback, InboxFragment.OnListFragmentInteractionListener {
+public class HomeActivity extends BaseActivity implements
+        RESTApiProcessorCallback,
+        InboxFragment.OnListFragmentInteractionListener,
+        NavigationCallback, PhotoInteractionCallback {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
 
@@ -29,9 +34,7 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
     private RESTApiBroadcastReceiver mReceiver;
     private IntentFilter mFilter;
 
-    private ViewPager mInboxViewPager;
-    private InboxFragmentPagerAdapter mInboxFragmentPagerAdapter;
-    private TabLayout mTabLayout;
+
 
     @Override
     public String getTag() {
@@ -42,8 +45,6 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         initUI();
     }
@@ -73,7 +74,14 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
             mProgressDialog.dismiss();
         }
 
+        int requestId = intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1);
         String message = intent.getStringExtra(Constants.IntentExtras.MESSAGE);
+
+        if (requestId == Constants.ApiRequestId.LOGOUT) {
+            finish();
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+        }
+
         Log.e(getTag(), message);
         showErrorDialog(message);
     }
@@ -83,31 +91,27 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
         }
+
+        int requestId = intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1);
+
+        if (requestId == Constants.ApiRequestId.LOGOUT) {
+            finish();
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+        } else {
+            Log.e(getTag(), "Unhandled HttpRequestComplete from " + intent.getAction());
+        }
     }
 
     private void initUI() {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Transition to camera Fragment
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        HomeFragment homeFragment = HomeFragment.newInstance();
 
-        mInboxViewPager = (ViewPager) findViewById(R.id.inbox_viewpager);
-        mInboxFragmentPagerAdapter = new InboxFragmentPagerAdapter(getSupportFragmentManager(), this);
-        mInboxFragmentPagerAdapter.addFragment(InboxFragment.newInstance(1), "Inbox", R.drawable.ic_inbox_white_24dp);
-        mInboxFragmentPagerAdapter.addFragment(InboxFragment.newInstance(1), "Sent", R.drawable.ic_inbox_white_24dp);
-        mInboxViewPager.setAdapter(mInboxFragmentPagerAdapter);
-
-        mTabLayout.setupWithViewPager(mInboxViewPager);
-
-        mTabLayout.getTabAt(0).setIcon(R.drawable.ic_inbox_white_24dp);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.ic_send_white_24dp);
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .add(R.id.home_coordinator_layout, homeFragment, "homeFragment")
+                .commit();
     }
 
     @Override
@@ -131,6 +135,75 @@ public class HomeActivity extends BaseActivity implements RESTApiProcessorCallba
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id == R.id.action_logout) {
+            ServiceHelper.getInstance(HomeActivity.this).doLogout();
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager fm = getFragmentManager();
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void goFullScreen() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+    }
+
+    @Override
+    public void returnFromFullScreen() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(0);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.show();
+        }
+    }
+
+    @Override
+    public void startNewPick() {
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right)
+                .replace(R.id.home_coordinator_layout, PhotoFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+        //goFullScreen();
+    }
+
+    @Override
+    public void goToInbox() {
+        // TODO: Maybe clear the backstack
+        returnFromFullScreen();
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right)
+                .replace(R.id.home_coordinator_layout, PhotoFragment.newInstance())
+                .commit();
+    }
+
+    @Override
+    public void nextPhoto() {
+
+    }
+
+    @Override
+    public void finishedPhoto() {
+
     }
 }
