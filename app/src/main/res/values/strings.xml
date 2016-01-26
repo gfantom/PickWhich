@@ -30,4 +30,6 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="request_permission">PickWhich needs camera access</string>
+    <string name="camera_error">This device is not compatible with the camea API</string>
 </resources>

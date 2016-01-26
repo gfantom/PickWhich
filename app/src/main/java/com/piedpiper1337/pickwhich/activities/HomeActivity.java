@@ -183,7 +183,7 @@ public class HomeActivity extends BaseActivity implements
                 .replace(R.id.home_coordinator_layout, PhotoFragment.newInstance())
                 .addToBackStack(null)
                 .commit();
-        goFullScreen();
+        //goFullScreen();
     }
 
     @Override
