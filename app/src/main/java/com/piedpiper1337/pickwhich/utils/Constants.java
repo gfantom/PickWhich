@@ -39,7 +39,7 @@ public class Constants {
 
     public interface IntentActions {
         String ACTION_ERROR = "com.PiedPiper1337.appIntentActions.ACTION_ERROR";
-        String ACTION_SUCCESS = "com.PiedPiper1337.appIntentActions.ACTION_ERROR";
+        String ACTION_SUCCESS = "com.PiedPiper1337.appIntentActions.ACTION_SUCCESS";
 
         String AUTHENTICATION = LoginProcessor.class.getName();
     }

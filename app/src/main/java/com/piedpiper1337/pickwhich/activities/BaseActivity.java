@@ -87,7 +87,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @param methodName The name of the callback
      */
     private void logMethodName(String methodName) {
-        Log.d(getTag(), ">>>>>>>> " + methodName + " in " + getTag() + " <<<<<<<<<<");
+        Log.d(getTag(), ">>>>>>>> " + methodName + " in activity: " + getTag() + " <<<<<<<<<<");
     }
 
     /**

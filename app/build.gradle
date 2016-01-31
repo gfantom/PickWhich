@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.piedpiper1337.pickwhich"
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -22,7 +22,14 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
+    compile('commons-validator:commons-validator:1.4.1') {
+        exclude group: 'commons-logging'
+        exclude group: 'commons-collections'
+        exclude group: 'commons-digester'
+        exclude group: 'commons-beanutils'
+    }
     compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:support-v13:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.parse:parse-android:1.+'

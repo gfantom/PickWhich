@@ -12,6 +12,7 @@ import org.json.JSONObject;
 /**
  * Base Processor class
  * Contains all the basic REST verbs
+ * TODO: Implement REST verbs with OKHTTP lol
  * <p/>
  * Created by cary on 1/4/16.
  */

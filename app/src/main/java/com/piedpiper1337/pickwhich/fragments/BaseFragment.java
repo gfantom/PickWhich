@@ -1,7 +1,7 @@
 package com.piedpiper1337.pickwhich.fragments;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -113,7 +113,7 @@ public abstract class BaseFragment extends Fragment {
      * @param methodName The name of the callback
      */
     private void logMethodName(String methodName) {
-        Log.d(getTag(), ">>>>>>>> " + methodName + " in " + getTag() + " <<<<<<<<<<");
+        Log.d(getTagName(), ">>>>>>>> " + methodName + " in fragment: " + getTagName() + " <<<<<<<<<<");
     }
 }
 

@@ -13,6 +13,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,9 +24,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.ParseUser;
 import com.piedpiper1337.pickwhich.R;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiBroadcastReceiver;
 import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
@@ -46,17 +52,46 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     private IntentFilter mFilter;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private AutoCompleteTextView mEmailEditText;
+    private Button mEmailSignInButton;
+    private EditText mPasswordEditText;
+    private EditText mPasswordConfirmEditText;
+    private EditText mUsernameEditText;
+    private EditText mPhoneNumberEditText;
     private View mProgressView;
     private View mLoginFormView;
+    private TextInputLayout mConfirmPasswordTextInputLayout;
+    private TextInputLayout mUsernameTextInputLayout;
+    private TextInputLayout mPhoneNumberTextInputLayout;
+    private CheckBox mSignUpCheckBox;
+
+    TextView.OnEditorActionListener mSignInOnEditorActionListener;
+    TextView.OnEditorActionListener mSignUpOnEditorActionListener;
+
+    View.OnClickListener mSignInOnClickListener;
+    View.OnClickListener mSignUpOnClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_login);
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            Log.d(getTag(), "Logged in already: " + currentUser.getEmail() + " " + currentUser.get("username"));
+            finish();
+            startActivity(new Intent(this, HomeActivity.class)); // Move along, we're already logged in
+        }
 
+        ActivityCompat.requestPermissions(this, new String[] {
+                android.Manifest.permission.READ_CONTACTS
+        }, 0);
+
+        setContentView(R.layout.activity_login);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         initUI(); // Set up the UI
     }
 
@@ -91,12 +126,24 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             mProgressDialog.dismiss();
         }
 
+        int requestId = intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1);
+
         showProgress(false);
 
-        if (intent.getIntExtra(Constants.IntentExtras.REQUEST_ID, -1) == Constants.ApiRequestId.LOGIN) {
+        if (requestId == Constants.ApiRequestId.LOGIN) {
             // Successfully logged in, continue to next screen
             startActivity(new Intent(this, HomeActivity.class)); // Start the main app Activity
             finish();
+        } else if (requestId == Constants.ApiRequestId.SIGN_UP) {
+            // Successfully signed up, now we can continue
+            // TODO: start phone number verification process
+            ParseUser currentuser = ParseUser.getCurrentUser();
+            if (currentuser != null) {
+                startActivity(new Intent(this, HomeActivity.class)); // Start the main app Activity
+                finish();
+            }
+        } else {
+            Log.e(getTag(), "Unhandled request received from " + intent.getAction());
         }
     }
 
@@ -116,12 +163,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
      * Initialized the UI
      */
     private void initUI() {
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mSignInOnEditorActionListener = new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -130,19 +172,206 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                 }
                 return false;
             }
-        });
+        };
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mSignUpOnEditorActionListener = new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int id, KeyEvent event) {
+                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    attemptSignUp();
+                    return true;
+                }
+                return false;
+            }
+        };
 
-        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+        mSignInOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
+        };
+
+        mSignUpOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptSignUp();
+            }
+        };
+
+        /**
+         * Email Box
+         * */
+        mEmailEditText = (AutoCompleteTextView) findViewById(R.id.email);
+        populateAutoComplete();
+
+        /**
+         * Username Box (for sign up)
+         * */
+        mUsernameTextInputLayout = (TextInputLayout) findViewById(R.id.username_textinputlayout);
+        mUsernameEditText = (EditText) findViewById(R.id.username);
+
+        /**
+         * Phone Number Box (for sign up)
+         * */
+        mPhoneNumberTextInputLayout = (TextInputLayout) findViewById(R.id.phone_number_textinputlayout);
+        mPhoneNumberEditText = (EditText) findViewById(R.id.phone_number);
+
+        /**
+         * First Password Box
+         * */
+        mPasswordEditText = (EditText) findViewById(R.id.password);
+        mPasswordEditText.setOnEditorActionListener(mSignInOnEditorActionListener);
+
+        /**
+         * Confirm Password Box (for sign up)
+         * */
+        mConfirmPasswordTextInputLayout = (TextInputLayout) findViewById(R.id.password_confirm_text_input_layout);
+        mPasswordConfirmEditText = (EditText) findViewById(R.id.password_confirm);
+
+        /**
+         * Dual purpose SUSI button
+         * */
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+
+        /**
+         * CheckBox for toggling SU/SI
+         * */
+        mSignUpCheckBox = (CheckBox) findViewById(R.id.sign_up_checkbox);
+        mSignUpCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
+                    mUsernameTextInputLayout.setVisibility(View.VISIBLE);
+                    mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
+                    mEmailSignInButton.setOnClickListener(mSignUpOnClickListener);
+                    mEmailSignInButton.setText(R.string.action_sign_up);
+                    mPasswordEditText.setOnEditorActionListener(mSignUpOnEditorActionListener);
+                    mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
+                } else {
+                    mConfirmPasswordTextInputLayout.setVisibility(View.GONE);
+                    mUsernameTextInputLayout.setVisibility(View.GONE);
+                    mPhoneNumberTextInputLayout.setVisibility(View.GONE);
+                    mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+                    mEmailSignInButton.setText(R.string.action_sign_in);
+                    mPasswordEditText.setOnEditorActionListener(mSignInOnEditorActionListener);
+                    mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_in), R.id.login);
+                }
+            }
         });
 
+        /**
+         * When the screen is rotated this check prevents a UI bug
+         * */
+        if (mSignUpCheckBox.isChecked()) {
+            mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
+            mUsernameTextInputLayout.setVisibility(View.VISIBLE);
+            mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
+            mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+            mEmailSignInButton.setText(R.string.action_sign_up);
+            mPasswordEditText.setOnEditorActionListener(mSignInOnEditorActionListener);
+            mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
+        }
+
+        /**
+         * Views for toggling the Progress Bar
+         * */
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void attemptSignUp() {
+        // Reset errors
+        mEmailEditText.setError(null);
+        mUsernameEditText.setError(null);
+        mPhoneNumberEditText.setError(null);
+        mPasswordEditText.setError(null);
+        mPasswordConfirmEditText.setError(null);
+
+        String email = mEmailEditText.getText().toString();
+        String username = mUsernameEditText.getText().toString();
+        String phoneNumber = mPhoneNumberEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
+        String confirmPassword = mPasswordConfirmEditText.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        /**
+         * Check that the email is not empty and has a valid format
+         * */
+        if (TextUtils.isEmpty(email)) {
+            mEmailEditText.setError(getString(R.string.error_field_required));
+            focusView = mEmailEditText;
+            cancel = true;
+        } else if (!isEmailValid(email)) {
+            mEmailEditText.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailEditText;
+            cancel = true;
+        }
+
+        /**
+         * Check that the username is not empty and has a valid format
+         * */
+        if (!isUsernameValid(username)) {
+            mUsernameEditText.setError(getString(R.string.error_invalid_username));
+            focusView = mUsernameEditText;
+            cancel = true;
+        } else if (TextUtils.isEmpty(username)) {
+            mUsernameEditText.setError(getString(R.string.error_field_required));
+            focusView = mUsernameEditText;
+            cancel = true;
+        }
+
+        /**
+         * Check that the phone number is not empty and has a valid format
+         * */
+        if (!isPhoneNumberValid(phoneNumber)) {
+            mPhoneNumberEditText.setError(getString(R.string.error_invalid_phone_number));
+            focusView = mPhoneNumberEditText;
+            cancel = true;
+        } else if (TextUtils.isEmpty(phoneNumber)) {
+            mPhoneNumberEditText.setError(getString(R.string.error_field_required));
+            focusView = mPhoneNumberEditText;
+            cancel = true;
+        }
+
+        /**
+         * Check for a valid password, if the user entered one.
+         * */
+        if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
+            mPasswordEditText.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordEditText;
+            cancel = true;
+        }
+
+        /**
+         * Check that the confirmed password isn't empty
+         * */
+        if (TextUtils.isEmpty(confirmPassword)) {
+            mPasswordConfirmEditText.setError(getString(R.string.error_field_required));
+            focusView = mPasswordConfirmEditText;
+            cancel = true;
+        }
+
+        /**
+         * Check that passwords match
+         * */
+        if (!mPasswordEditText.getText().toString().equals(mPasswordConfirmEditText.getText().toString())) {
+            mPasswordEditText.setError(getString(R.string.error_passwords_must_match));
+            mPasswordConfirmEditText.setError(getString(R.string.error_passwords_must_match));
+            focusView = mPasswordConfirmEditText;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+            showProgress(true);
+            ServiceHelper.getInstance(LoginActivity.this).doSignUp(username, password, email, phoneNumber);
+        }
     }
 
     /**
@@ -150,34 +379,32 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
      * Essentially check if fields are valid and start progress spinner and background login request
      */
     private void attemptLogin() {
-        //mProgressDialog = ProgressDialog.show(LoginActivity.this, "", "Logging the human in", true);
-
         // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
+        mEmailEditText.setError(null);
+        mPasswordEditText.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mEmailEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
+            mPasswordEditText.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordEditText;
             cancel = true;
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+            mEmailEditText.setError(getString(R.string.error_field_required));
+            focusView = mEmailEditText;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+            mEmailEditText.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailEditText;
             cancel = true;
         }
 
@@ -189,18 +416,27 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            ServiceHelper.getInstance(LoginActivity.this).doLogin("test", "Super Duper test!");
+            ServiceHelper.getInstance(LoginActivity.this).doLogin(email, password);
         }
     }
 
     private boolean isEmailValid(String email) {
-        // TODO: Replace this with logic
-        return email.contains("@");
+        return true;
+        //return EmailValidator.getInstance().isValid(email);
     }
 
     private boolean isPasswordValid(String password) {
-        // TODO: Replace this with logic
-        return password.length() > 4;
+        // TODO: Replace this with something better
+        return password.length() >= 6 && password.matches(".*[0-9].*");
+    }
+
+    private boolean isUsernameValid(String email) {
+        return email.length() > 2;
+    }
+
+    private boolean isPhoneNumberValid(String number) {
+        // TODO: Replace this with something better
+        return number.length() == 10;
     }
 
     /**
@@ -288,7 +524,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                 new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        mEmailEditText.setAdapter(adapter);
     }
 
 
