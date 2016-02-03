@@ -34,8 +34,6 @@ public class HomeActivity extends BaseActivity implements
     private RESTApiBroadcastReceiver mReceiver;
     private IntentFilter mFilter;
 
-
-
     @Override
     public String getTag() {
         return TAG;
