@@ -36,6 +36,8 @@ import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
 import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
+import org.apache.commons.validator.routines.EmailValidator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -399,10 +401,6 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             mEmailEditText.setError(getString(R.string.error_field_required));
             focusView = mEmailEditText;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailEditText.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailEditText;
-            cancel = true;
         }
 
         if (cancel) {
@@ -418,8 +416,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     private boolean isEmailValid(String email) {
-        return true;
-        //return EmailValidator.getInstance().isValid(email);
+        return EmailValidator.getInstance().isValid(email);
     }
 
     private boolean isPasswordValid(String password) {
