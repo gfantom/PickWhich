@@ -47,4 +47,10 @@ public class Constants {
     public interface JsonKeys {
         // String ACCESS_TOKEN = "access_token";
     }
+
+    public interface BackEnd {
+        String URL = "https://torrid-inferno-5037.firebaseio.com/";
+        String USERS = "users";
+    }
+
 }
