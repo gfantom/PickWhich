@@ -36,6 +36,8 @@ import com.piedpiper1337.pickwhich.callbacks.RESTApiProcessorCallback;
 import com.piedpiper1337.pickwhich.service.ServiceHelper;
 import com.piedpiper1337.pickwhich.utils.Constants;
 
+import org.apache.commons.validator.routines.EmailValidator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +62,8 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     private EditText mPhoneNumberEditText;
     private View mProgressView;
     private View mLoginFormView;
+    private TextInputLayout mEmailTextInputLayout;
+    private TextInputLayout mPasswordTextInputLayout;
     private TextInputLayout mConfirmPasswordTextInputLayout;
     private TextInputLayout mUsernameTextInputLayout;
     private TextInputLayout mPhoneNumberTextInputLayout;
@@ -206,6 +210,17 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         populateAutoComplete();
 
         /**
+         * Email TextInputLayout
+         * */
+        mEmailTextInputLayout = (TextInputLayout) findViewById(R.id.email_textinputlayout);
+        mEmailTextInputLayout.setHintAnimationEnabled(false);
+
+        /**
+         * Password TextInputLayout
+         * */
+        mPasswordTextInputLayout = (TextInputLayout) findViewById(R.id.password_text_input_layout);
+
+        /**
          * Username Box (for sign up)
          * */
         mUsernameTextInputLayout = (TextInputLayout) findViewById(R.id.username_textinputlayout);
@@ -243,21 +258,9 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
-                    mUsernameTextInputLayout.setVisibility(View.VISIBLE);
-                    mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
-                    mEmailSignInButton.setOnClickListener(mSignUpOnClickListener);
-                    mEmailSignInButton.setText(R.string.action_sign_up);
-                    mPasswordEditText.setOnEditorActionListener(mSignUpOnEditorActionListener);
-                    mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
+                    setSignupUI();
                 } else {
-                    mConfirmPasswordTextInputLayout.setVisibility(View.GONE);
-                    mUsernameTextInputLayout.setVisibility(View.GONE);
-                    mPhoneNumberTextInputLayout.setVisibility(View.GONE);
-                    mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
-                    mEmailSignInButton.setText(R.string.action_sign_in);
-                    mPasswordEditText.setOnEditorActionListener(mSignInOnEditorActionListener);
-                    mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_in), R.id.login);
+                    setLoginUI();
                 }
             }
         });
@@ -266,13 +269,9 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
          * When the screen is rotated this check prevents a UI bug
          * */
         if (mSignUpCheckBox.isChecked()) {
-            mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
-            mUsernameTextInputLayout.setVisibility(View.VISIBLE);
-            mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
-            mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
-            mEmailSignInButton.setText(R.string.action_sign_up);
-            mPasswordEditText.setOnEditorActionListener(mSignInOnEditorActionListener);
-            mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
+            setSignupUI();
+        } else {
+            setLoginUI();
         }
 
         /**
@@ -402,10 +401,6 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             mEmailEditText.setError(getString(R.string.error_field_required));
             focusView = mEmailEditText;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailEditText.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailEditText;
-            cancel = true;
         }
 
         if (cancel) {
@@ -421,8 +416,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     private boolean isEmailValid(String email) {
-        return true;
-        //return EmailValidator.getInstance().isValid(email);
+        return EmailValidator.getInstance().isValid(email);
     }
 
     private boolean isPasswordValid(String password) {
@@ -558,6 +552,28 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
+    }
+
+    private void setSignupUI() {
+        mEmailTextInputLayout.setHint(getString(R.string.prompt_email));
+        mConfirmPasswordTextInputLayout.setVisibility(View.VISIBLE);
+        mUsernameTextInputLayout.setVisibility(View.VISIBLE);
+        mPhoneNumberTextInputLayout.setVisibility(View.VISIBLE);
+        mEmailSignInButton.setOnClickListener(mSignUpOnClickListener);
+        mEmailSignInButton.setText(R.string.action_sign_up);
+        mPasswordEditText.setOnEditorActionListener(mSignUpOnEditorActionListener);
+        mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_up), R.id.login);
+    }
+
+    private void setLoginUI() {
+        mEmailTextInputLayout.setHint(getString(R.string.prompt_username));
+        mConfirmPasswordTextInputLayout.setVisibility(View.GONE);
+        mUsernameTextInputLayout.setVisibility(View.GONE);
+        mPhoneNumberTextInputLayout.setVisibility(View.GONE);
+        mEmailSignInButton.setOnClickListener(mSignInOnClickListener);
+        mEmailSignInButton.setText(R.string.action_sign_in);
+        mPasswordEditText.setOnEditorActionListener(mSignInOnEditorActionListener);
+        mPasswordEditText.setImeActionLabel(getString(R.string.action_sign_in), R.id.login);
     }
 }
 

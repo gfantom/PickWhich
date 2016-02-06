@@ -23,7 +23,7 @@ public class Constants {
     }
 
     public interface SharedPreferenceKeys {
-
+        String OAUTH_TOKEN = "com.piedpiper1337.pickwhich.OAUTH_TOKEN";
     }
 
     public interface IntentExtras {
@@ -45,6 +45,8 @@ public class Constants {
     }
 
     public interface JsonKeys {
+        String ERRORS = "errors";
+        String MESSAGE = "message";
         // String ACCESS_TOKEN = "access_token";
     }
 
