@@ -35,14 +35,15 @@
         android:layout_height="match_parent"
         />-->
 
-    <FrameLayout
-        android:id="@+id/pick_preview_framelayout"
+    <LinearLayout
+        android:id="@+id/pick_preview_linearlayout"
         android:layout_width="match_parent"
         android:layout_height="112dp"
+        android:orientation="horizontal"
         android:background="@color/colorPrimary"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true">
 
-    </FrameLayout>
+    </LinearLayout>
 
 </RelativeLayout>
