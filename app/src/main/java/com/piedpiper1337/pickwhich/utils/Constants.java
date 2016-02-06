@@ -49,4 +49,10 @@ public class Constants {
         String MESSAGE = "message";
         // String ACCESS_TOKEN = "access_token";
     }
+
+    public interface BackEnd {
+        String URL = "https://torrid-inferno-5037.firebaseio.com/";
+        String USERS = "users";
+    }
+
 }

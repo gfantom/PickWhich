@@ -421,7 +421,29 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
     private boolean isPasswordValid(String password) {
         // TODO: Replace this with something better
-        return password.length() >= 6 && password.matches(".*[0-9].*");
+        String hasUpperCase = ".*[A-Z].*";
+        String hasLowerCase = ".*[a-z].*";
+        String hasNumber = ".*[0-9].*";
+        String hasSpecialCharacter = ".*[!@#$%^&*].*";
+        int minimumLength = 8;
+
+        if (!password.matches(hasUpperCase)) {
+            return false;
+        }
+        if (!password.matches(hasLowerCase)) {
+            return false;
+        }
+        if (!password.matches(hasNumber)) {
+            return false;
+        }
+        if (!password.matches(hasSpecialCharacter)) {
+            return false;
+        }
+        if (password.length() >= minimumLength) {
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isUsernameValid(String email) {
