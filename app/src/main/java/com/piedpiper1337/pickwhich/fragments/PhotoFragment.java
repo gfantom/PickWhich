@@ -12,6 +12,8 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -44,6 +46,8 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.piedpiper1337.pickwhich.R;
@@ -62,6 +66,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +80,9 @@ public class PhotoFragment extends BaseFragment {
 
     private NavigationCallback mNavigationCallback;
     private PhotoInteractionCallback mPhotoInteractionCallback;
+    private LinearLayout mPickPreviewLinearLayout;
     private Context mContext;
+    private PickInstance mPickInstance;
 
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -709,6 +716,8 @@ public class PhotoFragment extends BaseFragment {
      */
     private void lockFocus() {
         try {
+            // Save as a new file
+            mFile = new File(getActivity().getExternalFilesDir(null), UUID.randomUUID().toString() + ".jpg");
             // This is how to tell the camera to lock focus.
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_START);
@@ -770,7 +779,29 @@ public class PhotoFragment extends BaseFragment {
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
+
                     Toast.makeText(mContext, "Saved: " + mFile, Toast.LENGTH_LONG).show();
+                    BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+                    Bitmap tempBitmap = BitmapFactory.decodeFile(mFile.getAbsolutePath(), bitmapOptions);
+                    final Bitmap bitmap = Bitmap.createBitmap(tempBitmap);
+
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ImageView imageView = new ImageView(activity);
+                            imageView.setLayoutParams(
+                                    new ViewGroup.LayoutParams(
+                                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT
+                                    )
+                            );
+
+                            imageView.setImageBitmap(bitmap);
+                            mPickPreviewLinearLayout.addView(imageView);
+                            mPickInstance.addImage(bitmap);
+                        }
+                    });
+
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
@@ -1011,6 +1042,8 @@ public class PhotoFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        mPickInstance = new PickInstance();
+
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.surface);
         mPhotoFAB = (FloatingActionButton) view.findViewById(R.id.take_photo_fab);
         mPhotoFAB.setOnClickListener(new View.OnClickListener() {
@@ -1020,7 +1053,15 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+        mPickPreviewLinearLayout = (LinearLayout) view.findViewById(R.id.pick_preview_linearlayout);
+
         ((HomeActivity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mFile = new File(getActivity().getExternalFilesDir(null), UUID.randomUUID().toString() + ".jpg");
     }
 }
